@@ -436,8 +436,6 @@ export class AgentRuntime implements IAgentRuntime {
       }
     }
 
-    await this.adapter.init();
-
     // First create the agent entity directly
     try {
       // Ensure agent exists first (this is critical for test mode)
@@ -1523,10 +1521,6 @@ export class AgentRuntime implements IAgentRuntime {
 
   get db(): any {
     return this.adapter.db;
-  }
-
-  async init(): Promise<void> {
-    await this.adapter.init();
   }
 
   async close(): Promise<void> {

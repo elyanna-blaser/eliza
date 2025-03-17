@@ -69,7 +69,6 @@ export abstract class BaseDrizzleAdapter<
   protected embeddingDimension: EmbeddingDimensionColumn = DIMENSION_MAP[384];
 
   protected abstract withDatabase<T>(operation: () => Promise<T>): Promise<T>;
-  public abstract init(): Promise<void>;
   public abstract close(): Promise<void>;
 
   protected agentId: UUID;

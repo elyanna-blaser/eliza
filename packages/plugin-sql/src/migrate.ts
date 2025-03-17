@@ -14,6 +14,7 @@ config({ path: '../../.env' });
 async function runMigrations() {
   if (process.env.POSTGRES_URL) {
     try {
+      console.log('running migrations postgres');
       const connectionManager = new PostgresConnectionManager(process.env.POSTGRES_URL);
       await connectionManager.initialize();
       await connectionManager.runMigrations();
@@ -25,6 +26,7 @@ async function runMigrations() {
       process.exit(1);
     }
   } else {
+    console.log('running migrations pglite');
     logger.info('Using PGlite database');
     const clientManager = new PGliteClientManager({
       dataDir: '../../pglite',

@@ -144,17 +144,30 @@ export class PGliteClientManager implements IDatabaseClientManager<PGlite> {
    * @returns {Promise<void>} A Promise that resolves once the migrations are completed successfully.
    */
   async runMigrations(): Promise<void> {
-    try {
-      const db = drizzle(this.client);
+    const db = drizzle(this.client);
 
-      const __filename = fileURLToPath(import.meta.url);
-      const __dirname = pathDirname(__filename);
+    const { existsSync } = await import('fs');
 
-      await migrate(db, {
-        migrationsFolder: pathResolve(__dirname, '../drizzle/migrations'),
-      });
-    } catch (error) {
-      logger.error('Failed to run database migrations (pglite):', error);
-    }
+    const packageMigrationsPath = pathResolve(
+      fileURLToPath(new URL('.', import.meta.url)),
+      '../drizzle/migrations'
+    );
+
+    console.log('packageMigrationsPath', packageMigrationsPath);
+
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = pathDirname(__filename);
+    const appMigrationPath = pathResolve(__dirname, '../drizzle/migrations');
+
+    console.log('appMigrationPath', appMigrationPath);
+
+    // if packageMigrationsPath exists, use it, otherwise use appMigrationPath
+    const migrationsFolder = existsSync(packageMigrationsPath)
+      ? packageMigrationsPath
+      : appMigrationPath;
+
+    await migrate(db, {
+      migrationsFolder,
+    });
   }
 }

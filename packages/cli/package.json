@@ -34,7 +34,7 @@
   },
   "scripts": {
     "cli": "bun run build && node dist/index.js",
-    "build": "tsup && bun run src/scripts/copy-client-dist.ts && bun run src/scripts/copy-templates.ts && bun run src/scripts/copy-drizzle.ts",
+    "build": "tsup && bun run src/scripts/copy-client-dist.ts && bun run src/scripts/copy-templates.ts",
     "test:dev": "REGISTRY_URL=http://localhost:3333 vitest run",
     "test:plugin-publisher": "vitest run test/plugin-publisher.test.js",
     "test:plugin-command": "vitest run test/plugin-command.test.js",

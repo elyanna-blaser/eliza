@@ -10,16 +10,13 @@ import type { PostgresConnectionManager } from './manager';
  */
 export class PgDatabaseAdapter extends BaseDrizzleAdapter<NodePgDatabase> {
   protected embeddingDimension: EmbeddingDimensionColumn = DIMENSION_MAP[384];
-
+  manager: PostgresConnectionManager;
   /**
    * Constructor for creating a new instance of a class.
    * @param {UUID} agentId - The unique identifier for the agent.
    * @param {PostgresConnectionManager} manager - The Postgres connection manager for the instance.
    */
-  constructor(
-    agentId: UUID,
-    private manager: PostgresConnectionManager
-  ) {
+  constructor(agentId: UUID, manager: PostgresConnectionManager) {
     super(agentId);
     this.manager = manager;
   }
@@ -43,22 +40,6 @@ export class PgDatabaseAdapter extends BaseDrizzleAdapter<NodePgDatabase> {
         client.release();
       }
     });
-  }
-
-  /**
-   * Asynchronously initializes the PgDatabaseAdapter by running migrations using the manager.
-   * Logs a success message if initialization is successful, otherwise logs an error message.
-   *
-   * @returns {Promise<void>} A promise that resolves when initialization is complete.
-   */
-  async init(): Promise<void> {
-    try {
-      await this.manager.runMigrations();
-      logger.debug('PgDatabaseAdapter initialized successfully');
-    } catch (error) {
-      logger.error('Failed to initialize PgDatabaseAdapter:', error);
-      throw error;
-    }
   }
 
   /**

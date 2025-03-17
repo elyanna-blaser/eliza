@@ -104,7 +104,6 @@ export class AgentServer {
   public async initialize(options?: ServerOptions): Promise<void> {
     try {
       // Initialize the database with await
-      await this.database.init();
       logger.success('Database initialized successfully');
 
       // Only continue with server initialization after database is ready

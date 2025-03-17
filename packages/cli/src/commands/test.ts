@@ -153,7 +153,6 @@ const runAgentTests = async (options: {
             // Try to initialize if not already initialized
             initializationAttempts++;
             try {
-              await server.database?.init();
               // If we reach here without error, consider initialization successful
               clearInterval(checkInterval);
               resolve();

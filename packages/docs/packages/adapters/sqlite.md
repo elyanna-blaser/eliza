@@ -45,8 +45,6 @@ import Database from 'better-sqlite3';
 import { SqliteDatabaseAdapter } from '@elizaos-plugins/adapter-sqlite';
 
 const db = new Database('path/to/database.db');
-const adapter = new SqliteDatabaseAdapter(db);
-await adapter.init();
 ```
 
 ## Configuration

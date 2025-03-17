@@ -52,6 +52,10 @@ async function startServer(args: string[] = []): Promise<void> {
   serverProcess = spawn(nodeExecutable, [scriptPath, 'start', ...args], {
     stdio: 'inherit',
     detached: false, // We want to keep control of this process
+    env: {
+      ...process.env,
+      LOG_LEVEL: 'debug',
+    },
   });
 
   // Handle process exit events

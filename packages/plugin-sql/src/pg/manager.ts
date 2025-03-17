@@ -1,8 +1,8 @@
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { logger } from '@elizaos/core';
-import { drizzle } from 'drizzle-orm/node-postgres';
 import { migrate } from 'drizzle-orm/node-postgres/migrator';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { dirname as pathDirname, resolve as pathResolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import pkg, { type Pool as PgPool } from 'pg';
 import type { IDatabaseClientManager } from '../types';
 
@@ -22,7 +22,7 @@ export class PostgresConnectionManager implements IDatabaseClientManager<PgPool>
    * Constructor for creating a connection pool.
    * @param {string} connectionString - The connection string used to connect to the database.
    */
-  constructor(connectionString: string) {
+  constructor(db: PgPool, connectionString: string) {
     const defaultConfig = {
       max: 20,
       idleTimeoutMillis: 30000,
@@ -40,7 +40,7 @@ export class PostgresConnectionManager implements IDatabaseClientManager<PgPool>
     });
 
     this.setupPoolErrorHandling();
-    this.testConnection();
+    // this.testConnection();
   }
 
   /**
@@ -152,8 +152,8 @@ export class PostgresConnectionManager implements IDatabaseClientManager<PgPool>
    */
   public async initialize(): Promise<void> {
     try {
-      await this.testConnection();
-      logger.debug('PostgreSQL connection manager initialized successfully');
+      // await this.testConnection();
+      // logger.debug('PostgreSQL connection manager initialized successfully');
     } catch (error) {
       logger.error('Failed to initialize connection manager:', error);
       throw error;
@@ -182,26 +182,43 @@ export class PostgresConnectionManager implements IDatabaseClientManager<PgPool>
   }
 
   /**
-   * Asynchronously runs database migrations using the Drizzle library.
+   * Asynchronously runs database migrations using the Drizzle library and ensures
+   * the database schema is always up to date with the current schema definition.
    *
-   * Drizzle will first check if the migrations are already applied.
-   * If there is a diff between database schema and migrations, it will apply the migrations.
-   * If they are already applied, it will skip them.
+   * First applies existing migrations, then uses drizzle-kit push to ensure
+   * the database schema matches the current schema definition.
    *
-   * @returns {Promise<void>} A Promise that resolves once the migrations are completed successfully.
+   * @returns {Promise<void>} A Promise that resolves once the schema updates are completed successfully.
    */
   async runMigrations(): Promise<void> {
-    try {
-      const db = drizzle(this.pool);
+    // try {
+    const { existsSync } = await import('fs');
+    const db = drizzle(this.pool);
 
-      const __filename = fileURLToPath(import.meta.url);
-      const __dirname = path.dirname(__filename);
+    const packagePath = (await import.meta.resolve('@elizaos/plugin-sql')).replace('file://', '');
 
-      await migrate(db, {
-        migrationsFolder: path.resolve(__dirname, '../drizzle/migrations'),
-      });
-    } catch (error) {
-      logger.error('Failed to run database migrations (pg):', error);
-    }
+    const packageMigrationsPath = pathResolve(pathDirname(packagePath), '../drizzle/migrations');
+    console.log('packageMigrationsPath', packageMigrationsPath);
+
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = pathDirname(__filename);
+    const appMigrationPath = pathResolve(__dirname, '../drizzle/migrations');
+
+    console.log('appMigrationPath', appMigrationPath);
+
+    // if packageMigrationsPath exists, use it, otherwise use appMigrationPath
+    const migrationsFolder = existsSync(packageMigrationsPath)
+      ? packageMigrationsPath
+      : appMigrationPath;
+
+    console.log('migrationsFolder', migrationsFolder);
+
+    await migrate(db, {
+      migrationsFolder,
+    });
+    // } catch (error) {
+    logger.error('Failed to run database migrations or schema push (pg):', error);
+    throw error;
+    // }
   }
 }

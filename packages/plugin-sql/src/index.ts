@@ -95,13 +95,19 @@ const sqlPlugin: Plugin = {
   name: 'sql',
   description: 'SQL database adapter plugin using Drizzle ORM',
   init: async (_, runtime: IAgentRuntime) => {
+    console.log('************** INIT CALLED **************');
     const config = {
       dataDir: runtime.getSetting('PGLITE_DATA_DIR') ?? './pglite',
       postgresUrl: runtime.getSetting('POSTGRES_URL'),
     };
 
     try {
+      console.log('************** CREATE DATABASE ADAPTER **************');
       const db = createDatabaseAdapter(config, runtime.agentId);
+      console.log('************** RUN MIGRATIONS **************');
+      await (db as PgDatabaseAdapter | PgliteDatabaseAdapter).manager.runMigrations();
+      console.log('************** RUN MIGRATIONS COMPLETED **************');
+
       logger.success('Database connection established successfully');
       runtime.registerDatabaseAdapter(db);
     } catch (error) {

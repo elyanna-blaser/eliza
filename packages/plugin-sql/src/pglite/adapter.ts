@@ -23,7 +23,7 @@ import type { PGliteClientManager } from './manager';
  * @return {void} - A Promise that resolves when the database is closed.
  */
 export class PgliteDatabaseAdapter extends BaseDrizzleAdapter<PgliteDatabase> {
-  private manager: PGliteClientManager;
+  manager: PGliteClientManager;
   protected embeddingDimension: EmbeddingDimensionColumn = DIMENSION_MAP[384];
 
   /**
@@ -50,20 +50,6 @@ export class PgliteDatabaseAdapter extends BaseDrizzleAdapter<PgliteDatabase> {
       return null as unknown as T;
     }
     return operation();
-  }
-
-  /**
-   * Asynchronously initializes the database by running migrations using the manager.
-   *
-   * @returns {Promise<void>} A Promise that resolves when the database initialization is complete.
-   */
-  async init(): Promise<void> {
-    try {
-      await this.manager.runMigrations();
-    } catch (error) {
-      logger.error('Failed to initialize database:', error);
-      throw error;
-    }
   }
 
   /**

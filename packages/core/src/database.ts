@@ -32,12 +32,6 @@ export abstract class DatabaseAdapter<DB = unknown> implements IDatabaseAdapter 
   db: DB;
 
   /**
-   * Initialize the database adapter.
-   * @returns A Promise that resolves when initialization is complete.
-   */
-  abstract init(): Promise<void>;
-
-  /**
    * Optional close method for the database adapter.
    * @returns A Promise that resolves when closing is complete.
    */
